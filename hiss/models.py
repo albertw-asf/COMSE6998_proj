@@ -288,6 +288,7 @@ class MambaNet(nn.Module):
             [
                 create_block(
                     model_dim,
+                    d_intermediate=0,
                     ssm_cfg=ssm_cfg,
                     norm_epsilon=norm_epsilon,
                     rms_norm=rms_norm,

@@ -12,11 +12,13 @@ from hiss.utils.train_utils import (
     set_seed,
     create_dsets,
 )
-
+import wandb
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg):
     set_seed(cfg.seed)
+    wandb.login()
+    run = wandb.init(project="vector", config=dict(cfg))
 
     # Configure the logger
     log = logging.getLogger(__name__)
@@ -103,16 +105,30 @@ def main(cfg):
             best_model = copy.deepcopy(model.state_dict())
         model.train()
         log.info(f"Epoch {i}: Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}")
+        run.log({
+            "train_loss": float(f"{train_loss:.4f}"),
+            "val_loss": float(f"{val_loss:.4f}")
+        })
 
         # Save best model every 100 epochs
         if i > 0 and i % 100 == 0:
             torch.save(best_model, "model.pt")
+            wandb.log_model(
+                "./model.pt",
+                "model",
+                aliases=[f"epoch-{i+1}"],
+            )
 
     model.load_state_dict(best_model)
     torch.save(best_model, "model.pt")
 
     log.info(f"Best Val Loss: {best_loss}")
     log_dict = {"best_loss": best_loss}
+    wandb.summary["best_val_loss"] = best_loss
+
+    artifact = wandb.Artifact("model", type="model")
+    artifact.add_file("model.pt")
+    wandb.log_artifact(artifact)
 
     # This can be used to log different task-specific metrics. Generally used to keep
     # track of quantities like accuracies, unnormalized errors etc. that are not part
@@ -122,6 +138,7 @@ def main(cfg):
         for mval, metric in zip(best_metrics, task.metrics):
             log.info(f"Best Val {metric}: {mval:.4f}")
             log_dict[f"best_{metric}"] = mval
+    wandb.finish()
 
 
 def evaluate(val_loader, criterion, device, model):
