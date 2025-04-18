@@ -18,7 +18,7 @@ import wandb
 def main(cfg):
     set_seed(cfg.seed)
     wandb.login()
-    run = wandb.init(project="vector", config=dict(cfg))
+    run = wandb.init(project="vector-mamba2", config=dict(cfg))
 
     # Configure the logger
     log = logging.getLogger(__name__)
