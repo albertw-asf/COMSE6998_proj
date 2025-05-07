@@ -4,6 +4,8 @@ import hydra
 from typing import Type
 import numpy as np
 import torch
+from omegaconf import OmegaConf
+
 from hiss.tasks import Task
 from hiss.models import LowFreqPredictor
 from hiss.utils.data_utils import get_data_path
@@ -18,7 +20,7 @@ import wandb
 def main(cfg):
     set_seed(cfg.seed)
     wandb.login()
-    run = wandb.init(project="testrun2", config=dict(cfg))
+    run = wandb.init(project="vector-mamba2", config=dict(cfg))
 
     # Configure the logger
     log = logging.getLogger(__name__)
@@ -58,6 +60,8 @@ def main(cfg):
     # Instantiate model using hydra config
     input_dim = train_dset[0][0].shape[-1]
     output_dim = train_dset[0][1].shape[-1]
+
+    print(">>>> FULL cfg.model:\n", OmegaConf.to_yaml(cfg.model, resolve=True))
 
     model = hydra.utils.instantiate(cfg.model.model, _recursive_=False)(
         input_dim=input_dim, output_dim=output_dim
