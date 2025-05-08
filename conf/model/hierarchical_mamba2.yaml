@@ -15,9 +15,9 @@ model:
     _target_:      hiss.models.MambaModel
     _partial_:     true
     model_dim:     128
-    output_dim:    ${model.model_dim}
+    output_dim:    ${model.model.model_dim}
     nlayers:       1
-    ssm_cfg:       null
+    ssm_cfg: { layer: Mamba2 }
     norm_epsilon:  1e-5
     rms_norm:      false
     fused_add_norm: false
