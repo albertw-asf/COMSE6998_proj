@@ -1,6 +1,6 @@
 # conf/model/hierarchical_mamba2.yaml
 defaults:
-  - hl_model@model.hl_model: s4
+  - hl_model@model.hl_model: mamba2
 
 type: hierarchical_mamba2
 _target_: hiss.models.HierarchicalModel

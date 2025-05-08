@@ -1,6 +1,6 @@
 type: mamba
 model:
-  _target_: mamba_ssm.modules.mamba2.Mamba2
+  _target_: hiss.models.MambaModel
   _partial_: true
   model_dim: 32
   d_intermediate: 128

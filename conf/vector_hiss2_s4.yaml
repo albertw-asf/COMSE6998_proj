@@ -1,0 +1,31 @@
+defaults:
+  - config                    # load base config.yaml
+  - override model: hierarchical_mamba2
+  - override data_env: VectorEnv
+  - override model/hl_model@model.model.hl_model: mamba2
+  - override model/ll_model@model.model.ll_model: s4
+  - _self_
+
+# Top‐level hyperparameters
+model_dim: 64
+dropout:   0.1
+
+hl_model:
+  nlayers:      4
+  model_dim:    64
+  d_ff:         128
+  ssm_cfg:
+    layer: Mamba2
+  norm_epsilon: 1e-5
+  rms_norm:     false
+  fused_add_norm: false
+  residual_in_fp32: false
+
+ll_model:
+  _partial_: true
+  nlayers:      6
+  model_dim:    128
+  prenorm:      true
+  dropout:      0.1
+  ssm_cfg:
+    layer: S4
