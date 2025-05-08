@@ -10,7 +10,7 @@ except ImportError:
 
 try:
     from mamba_ssm.models.mixer_seq_simple import create_block
-    from mamba_ssm.ops.triton.layer_norm import RMSNorm, layer_norm_fn, rms_norm_fn
+    from mamba_ssm.ops.triton.layernorm import RMSNorm, layer_norm_fn, rms_norm_fn
 except ImportError:
     RMSNorm, layer_norm_fn, rms_norm_fn = None, None, None
     print("Failed to import Triton LayerNorm / RMSNorm kernels")
@@ -365,9 +365,11 @@ class MambaModel(nn.Module):
 
         self.decoder = nn.Linear(model_dim, output_dim)
 
-    def forward(self, x, inference_params=None):
+    def forward(self, x, inference_params=None, return_hidden=False):
         hidden_states = self.embed(x)
         hidden_states = self.mamba(hidden_states)
+        if return_hidden:
+            return hidden_states
         output = self.decoder(hidden_states)
         return output
 
@@ -398,7 +400,7 @@ class HierarchicalModel(nn.Module):
     ) -> None:
         super().__init__()
         self.model_type = "hierarchical"
-        self.low_level = hydra.utils.instantiate(ll_model)(input_dim=input_dim)
+        self.low_level = hydra.utils.instantiate(ll_model)(input_dim=input_dim, output_dim=output_dim)
         self.high_level = hydra.utils.instantiate(hl_model)
 
         self.src_mask = None
@@ -408,11 +410,19 @@ class HierarchicalModel(nn.Module):
 
     def forward(self, x, has_mask=True):
         # Reshape x into B, Lc, C, D
-        x = x.reshape(x.shape[0], -1, int(self.freq_ratio), x.shape[-1])
-
-        proc_x = self.low_level(x.reshape(-1, *x.shape[2:]))[:, -1]
-
-        proc_x = proc_x.reshape(*x.shape[:2], -1)
+        
+        B, T, D = x.shape
+        C = int(self.freq_ratio)
+        Lc = T // C
+        x = x.reshape(-1, C, D)
+        flat = x.reshape(-1, C, D)
+        
+        # flat = x.reshape(-1, *x.shape[2:])
+        hidden = self.low_level(flat, return_hidden=True)
+        last = hidden[:, -1, :]
+        # B, Lc = x.shape[0], x.shape[1]
+        proc_x = last.view(B, Lc, -1)
+        # proc_x = last.view(B, Lc, -1)
 
         if isinstance(self.high_level, nn.TransformerEncoder):
             # Pass through transformer to output B, Lc, D

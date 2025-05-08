@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+# import os
+# # Force causal-conv1d to skip the Triton kernel and use the generic C++ fallback
+# os.environ["CAUSAL_CONV1D_USE_FALLBACK"] = "1"
+# print("fallback flag in train.py:", os.environ.get("CAUSAL_CONV1D_USE_FALLBACK"))
+
 import os
 import sys
 import logging
@@ -11,7 +17,6 @@ if ROOT not in sys.path:
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 log = logging.getLogger(__name__)
 
-# cuda ssm kernl
 use_cuda_kernels = False
 try:
     from mamba_ssm.ops import selective_scan_interface
@@ -24,12 +29,11 @@ except ImportError:
     except Exception:
         pass
     try:
-        import pykeops 
+        import pykeops
         log.info("PyKeOps available for SSM speedups")
     except ImportError:
         log.warning("PyKeOps not available; using pure-Python fallback")
 
-# triton-accel
 use_triton_ln = False
 try:
     import triton
@@ -45,13 +49,10 @@ log.info(f"Triton LayerNorm:   {'enabled' if use_triton_ln else 'disabled'}")
 log.info("")
 
 import copy
-import logging
 import hydra
 from typing import Type
 import numpy as np
 import torch
-from omegaconf import OmegaConf
-
 from hiss.tasks import Task
 from hiss.models import LowFreqPredictor
 from hiss.utils.data_utils import get_data_path
@@ -61,12 +62,13 @@ from hiss.utils.train_utils import (
     create_dsets,
 )
 import wandb
+from omegaconf import OmegaConf
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg):
     set_seed(cfg.seed)
     wandb.login()
-    run = wandb.init(project="vector-mamba2", config=dict(cfg))
+    run = wandb.init(project="hl_mamba2_ll_mamba2", config=dict(cfg))
 
     # Configure the logger
     log = logging.getLogger(__name__)
@@ -180,9 +182,6 @@ def main(cfg):
     artifact.add_file("model.pt")
     wandb.log_artifact(artifact)
 
-    # This can be used to log different task-specific metrics. Generally used to keep
-    # track of quantities like accuracies, unnormalized errors etc. that are not part
-    # of the loss function.
     if cfg.log_metrics:
         best_metrics = evaluate_metrics(val_data_loader, device, model, task)
         for mval, metric in zip(best_metrics, task.metrics):
