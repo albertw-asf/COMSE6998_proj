@@ -54,3 +54,8 @@ python train.py --config-name <dataset_name>_hiss_config
 ```
 
 New datasets can be added by creating a corresponding `Task` object in line with tasks defined in `vt_state/tasks`, and creating a config file in `conf/data_env/<data_env_name>`.
+
+
+## wandb dashboard
+
+https://wandb.ai/aw3575-columbia-university?shareProfileType=copy
