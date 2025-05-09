@@ -1,10 +1,9 @@
 defaults:
 - config
-- override model: hierarchical_s4
+- override model: hierarchical_transformer
 - override data_env: VectorEnv
 - override model/hl_model@model.model.hl_model: mamba2
 - _self_
-
 
 model:
   model:
@@ -12,12 +11,6 @@ model:
     dropout: 0.1
     hl_model:
       nlayers: 4
-      norm_epsilon: 1e-5
-      rms_norm: true
-      fused_add_norm: True
-      residual_in_fp32: false
     ll_model:
       model_dim: 32
       nlayers: 4
-      dropout: 0.1
-      prenorm: true

@@ -66,7 +66,7 @@ import wandb
 def main(cfg):
     set_seed(cfg.seed)
     wandb.login()
-    run = wandb.init(project="vector-mamba2", config=dict(cfg))
+    run = wandb.init(project="flat_s4", config=dict(cfg))
 
     # Configure the logger
     log = logging.getLogger(__name__)
@@ -117,8 +117,8 @@ def main(cfg):
         print(">>>> hierarchical model")
         print(">>>> low level model:\n", model.low_level)
         print(">>>> high level model:\n", model.high_level)
-    else:
-        print(">>>> model:\n", model)
+    
+    print(">>>> model:\n", model)
 
     # Wrapper to downsample model outputs if necessary
     if "low_freq_factor" in cfg:
