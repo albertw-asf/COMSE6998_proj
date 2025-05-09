@@ -80,8 +80,9 @@ python train.py --config-name [name of config (e.g. vector_2_lstm)]
 | Mamba | Mamba2 | hl_mamba_ll_mamba2.yaml |
 | Mamba2 | Mamba2 | hl_mamba2_ll_mamba2.y|
 
-| Flat Model | Corresponding config file | 
-| Mamba2 | flat_mamba.yaml |
+| Flat Model | Corresponding config file |
+|----------------------|-------------|
+Mamba2 | flat_mamba.yaml |
 
 
 ---
@@ -109,6 +110,6 @@ python train.py --config-name vector_lstm_2
 ---
 ## 5. Notes (up to you)
 - All config files are located in `conf/` directory
-freq_ratio: 5
-    freq_ratio: 5
+
+
 
