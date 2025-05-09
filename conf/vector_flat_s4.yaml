@@ -1,0 +1,13 @@
+defaults:
+- config
+- override data_env: VectorEnv
+- override model: s4
+- _self_
+
+low_freq_factor: 10
+
+model:
+  model:
+    model_dim: 64
+    dropout: 0.1
+    nlayers: 4
