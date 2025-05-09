@@ -1,0 +1,17 @@
+# conf/vector_hiss2_config.yaml
+defaults:
+  - config
+  - override model: hierarchical_mamba2
+  - override data_env: VectorEnv
+  - override model/hl_model@model.model.hl_model: transformer
+  - _self_
+
+model:
+  model:
+    model_dim: 64
+    dropout:   0.1
+    hl_model:
+      num_layers: 2
+    ll_model:
+      model_dim:  64
+      nlayers:   2

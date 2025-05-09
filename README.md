@@ -1,61 +1,112 @@
-# Hierarchical State Space Models (HiSS)
-![poster-compressed](https://github.com/raunaqbhirangi/hiss/assets/73357354/33fe0d1d-a1f2-480b-9d5b-ac8318fbbae4)
+    SS with Mamba2
+## Team Information
+- **Team Name**: [Team Name]
+- **Members**:
+- Albert Wen (aw3575)
+- Nicholas Yah (nzy2000)
+- Xian Jiang (xj2281)
+---
+## 1. Problem Statement
+Hierarchical State Space Models (HiSS) is an architecture that leverages models like S4, Mamba for continuous sequence prediction. After reading the paper, we found that the authors did not analyze the training runtime of the models. Additionally, Mamba2 was developed after the paper, which motivated us to investigate the questions below.
 
+How does the inclusion of Mamba2 affect the performance of HiSS?
+How does Mamba2 perform on different sensory datasets?
+Can we attribute any performance gain or loss to optimizations from Mamba to Mamba2?
 
-> __Hierarchical State Space Models for Continuous Sequence-to-Sequence Modeling__ \
-> Raunaq Bhirangi, Chenyu Wang, Venkatesh Pattabiraman, Carmel Majidi, Abhinav Gupta, Tess Hellebrekers and Lerrel Pinto\
-> Paper: https://arxiv.org/abs/2402.10211 \
-> Website: https://hiss-csp.github.io/
-
-## About
-HiSS is a simple technique that stacks deep state space models like [S4]() and [Mamba]() to reason over continuous sequences of sensory data over mutiple temporal hierarchies. We also release CSP-Bench: a benchmark for sequence-to-sequence prediction from sensory data.
-
-## Installation
-1. Clone the repository
-
-2. Create a conde environment from the provided `env.yml` file: ```conda env create -f env.yml```
-
-3. Install Mamba based on the official [instructions](https://github.com/state-spaces/mamba/tree/main?tab=readme-ov-file#installation).
-
-Note: If you run into CUDA issues while installing Mamba, run ```export CUDA_HOME=$CONDA_PREFIX```, and try again. If you still have problems, install both `causal_conv1d` and `mamba-ssm` from source.
-
-## Data processing
-1. Refer to [data_processing/README](./data_processing/README.md) to download and extract the required dataset.
-
-2. Set the `DATA_DIR` variable in the [`hiss/utils/__init__.py`](https://github.com/raunaqbhirangi/hiss/blob/main/hiss/utils/__init__.py) file. This is the path to the parent directory which contains folders corresponding to every dataset.
-
-3. Process the datasets into format compatible with training
-<br>__Marker Writing__: `python data_processing/process_reskin_data.py -dd marker_writing_<hiss/full>_dataset`
-<br>__Intrinsic Slip__: `python data_processing/process_reskin_data.py -dd intrinsic_slip_<hiss/full>_dataset`
-<br>__Joystick Control__: `python data_processing/process_xela_data.py -dd joystick_control_<hiss/full>_dataset`
-<br>__RoNIN__: `python data_processing/process_ronin_data.py`
-<br>__VECtor__: `python data_processing/process_vector_data.py`
-<br>__TotalCapture__: `python data_processing/process_total_capture_data.py`
-
-5. Run `create_dataset.py` for the respective dataset to preprocess data and resample it at the desired frequencies.
-<br>__Marker Writing__: `python create_dataset.py --config-name marker_writing_config`
-<br>__Intrinsic Slip__: `python create_dataset.py --config-name intrinsic_slip_config`
-<br>__Joystick Control__: `python create_dataset.py --config-name joystick_control_config`
-<br>__RoNIN__:
-<br> `python create_dataset.py --config-name ronin_train_config`
-<br> `python create_dataset.py --config-name ronin_test_config`
-<br>__VECtor__: `python create_dataset.py --config-name vector_config`
-<br>__TotalCapture__:
-<br> `python create_dataset.py --config-name total_capture_train_config`
-<br> `python create_dataset.py --config-name total_capture_test_config`
+We utilize the existing HiSS architecture but make modifications to include the Mamba2 model. Our solution provides empirical evidence on whether Mamba2 optimizations improves performance when applied in the context of sensory data and hierarchical models.
+---
+## 2. Model Description
+Summarize the model architecture(s) used (e.g., ResNet-18, Transformer).
+- Framework: PyTorch
+- Hierarchical Model Structure
+- Models involved: Mamba-1, Mamba-2, Transformer, LSTM, S4
+---
+## 3. Final Results Summary
+MSE-loss table:
+| High-level | Low-level | Val MSE | Training Runtime |
+|----------------------|-------------|-------------|
+| Mamba2 | Transformer | NIL: hitting errors | NIL: hitting errors |
+| Mamba2 | LSTM | 0.0269 | 60.35 |
+| Mamba2 | S4 | NIL: gives NAN | NIL: gives NAN |
+| Mamba2 | Mamba | 0.0274 | 270.39 |
+| Transformer | Mamba2 | 0.0299 | 1020.36 |
+| LSTM | Mamba2 | 0.0269 | 1890.00 |
+| S4 | Mamba2 | 0.0285 | 1215.37 |
+| Mamba | Mamba2 | 0.0273 | 1500.33 |
+| Mamba2 | Mamba2 | 0.0269 | 240.34 |
 
 
 
-## Usage
-To train HiSS models for sequential prediction, use the `train.py` file. For each dataset, we provide a `<dataset_name>_hiss_config.yaml` file in the `conf/` directory, containing model parameters corresponding to the best-performing HiSS model for the respective dataset. To train the model, simply run
-
+Models achieving best MSE loss: Mamba2 - LSTM, LSTM - Mamba2, Flat Mamba2
+---
+## 4. Reproducibility Instructions
+### A. Requirements
+Install dependencies:
+```bash
+conda env create -f env.yml
+conda activate vt_state
 ```
-python train.py --config-name <dataset_name>_hiss_config
+If this causes dependency issues, do the installations manually and in order.
+Build Mamba from source: https://github.com/state-spaces/mamba by cloning repo then
+```bash
+pip install .
 ```
+Build causal-conv1d from source: https://github.com/Dao-AILab/causal-conv1d by cloning repo then
+```bash
+pip install .
+```
+---
+B. Wandb Dashboard
+View training and evaluation metrics here: https://wandb.ai/aw3575-columbia-university?shareProfileType=copy
+---
+### C. Specify for Training or For Inference or if Both
+To train the models, e.g.:
+```bash
+python train.py --config-name [name of config (e.g. vector_2_lstm)]
+```
+| High-level | Low-level | Corresponding config file | 
+|----------------------|-------------|-------------|
+| Mamba2 | Transformer | hl_mamba2_ll_transformer.yaml |
+| Mamba2 | LSTM |  hl_mamba2_ll_lstm.yaml |
+| Mamba2 | S4 |  hl_mamba2_ll_s4.yaml |
+| Mamba2 | Mamba | hl_mamba2_ll_mamba.yaml |
+| Transformer | Mamba2 | hl_transformer_ll_mamba2.yaml |
+| LSTM | Mamba2 | hl_lstm_ll_mamba2.yaml |
+| S4 | Mamba2 | hl_s4_ll_mamba2.yaml |
+| Mamba | Mamba2 | hl_mamba_ll_mamba2.yaml |
+| Mamba2 | Mamba2 | hl_mamba2_ll_mamba2.y|
 
-New datasets can be added by creating a corresponding `Task` object in line with tasks defined in `vt_state/tasks`, and creating a config file in `conf/data_env/<data_env_name>`.
+| Flat Model | Corresponding config file | 
+| Mamba2 | flat_mamba.yaml |
 
 
-## wandb dashboard
+---
+### D. Evaluation
+To evaluate the trained model:
+```bash
+python train.py --config-name vector_lstm_2
+```
+---
+### E. Quickstart: Minimum Reproducible Result
+To reproduce our minimum reported result (e.g., XX.XX% accuracy), run:
+```bash
+# Step 1: Set up environment
+See 4A for instructions on setting up environment
+# Step 2: Download dataset
+Refer to `data_processing/README.md` on detailed instructions
+# Step 3: Prepare dataset
+Refer to `data_processing/README.md` on detailed instructions
+Run:
+``` bash
+python data_processing/process_vector_data.py
+python create_dataset.py --config-name vector_config
+```
+# Step 4: Run training
+python train.py --config-name vector_lstm_2
+```
+---
+## 5. Notes (up to you)
+- All config files are located in `conf/` directory
+freq_ratio: 5
+    oreq_ratio: 5
 
-https://wandb.ai/aw3575-columbia-university?shareProfileType=copy
