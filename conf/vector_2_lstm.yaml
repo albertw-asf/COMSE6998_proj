@@ -1,8 +1,8 @@
 defaults:
 - config
-- override model: hierarchical_lstm
+- override model: hierarchical_mamba2
 - override data_env: VectorEnv
-- override model/hl_model@model.model.hl_model: mamba2
+- override model/hl_model@model.model.hl_model: lstm
 - _self_
 
 model:
