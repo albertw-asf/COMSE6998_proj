@@ -101,13 +101,9 @@ Refer to `data_processing/README.md` on detailed instructions
 # Step 3: Prepare dataset
 Refer to `data_processing/README.md` on detailed instructions
 Run:
-``` bash
 python data_processing/process_vector_data.py
 python create_dataset.py --config-name vector_config
-```
 # Step 4: Run training
-
-```
 python train.py --config-name vector_lstm_2
 ```
 ---
