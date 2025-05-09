@@ -1,19 +1,20 @@
-    SS with Mamba2
+# HPML Project: HiSS with Mamba2
 ## Team Information
-- **Team Name**: [Team Name]
+- **Team Name**: wisebees
 - **Members**:
 - Albert Wen (aw3575)
 - Nicholas Yah (nzy2000)
 - Xian Jiang (xj2281)
 ---
 ## 1. Problem Statement
-Hierarchical State Space Models (HiSS) is an architecture that leverages models like S4, Mamba for continuous sequence prediction. After reading the paper, we found that the authors did not analyze the training runtime of the models. Additionally, Mamba2 was developed after the paper, which motivated us to investigate the questions below.
+Hierarchical State Space Models (HiSS) is an architecture that leverages models like S4, Mamba for continuous sequence prediction. The paper can be found here: https://hiss-csp.github.io/. After reading the paper, we found that the authors did not analyze the training runtime of the models. Additionally, Mamba2 was developed after the paper, which motivated us to investigate the questions below.
 
 How does the inclusion of Mamba2 affect the performance of HiSS?
 How does Mamba2 perform on different sensory datasets?
 Can we attribute any performance gain or loss to optimizations from Mamba to Mamba2?
 
 We utilize the existing HiSS architecture but make modifications to include the Mamba2 model. Our solution provides empirical evidence on whether Mamba2 optimizations improves performance when applied in the context of sensory data and hierarchical models.
+
 ---
 ## 2. Model Description
 Summarize the model architecture(s) used (e.g., ResNet-18, Transformer).
@@ -22,9 +23,10 @@ Summarize the model architecture(s) used (e.g., ResNet-18, Transformer).
 - Models involved: Mamba-1, Mamba-2, Transformer, LSTM, S4
 ---
 ## 3. Final Results Summary
-MSE-loss table:
+MSE-loss and Runtime table:
+
 | High-level | Low-level | Val MSE | Training Runtime |
-|----------------------|-------------|-------------|
+|----------------------|-------------|-------------|-------------|
 | Mamba2 | Transformer | NIL: hitting errors | NIL: hitting errors |
 | Mamba2 | LSTM | 0.0269 | 60.35 |
 | Mamba2 | S4 | NIL: gives NAN | NIL: gives NAN |
@@ -38,6 +40,7 @@ MSE-loss table:
 
 
 Models achieving best MSE loss: Mamba2 - LSTM, LSTM - Mamba2, Flat Mamba2
+
 ---
 ## 4. Reproducibility Instructions
 ### A. Requirements
@@ -56,8 +59,9 @@ Build causal-conv1d from source: https://github.com/Dao-AILab/causal-conv1d by c
 pip install .
 ```
 ---
-B. Wandb Dashboard
+### B. Wandb Dashboard
 View training and evaluation metrics here: https://wandb.ai/aw3575-columbia-university?shareProfileType=copy
+
 ---
 ### C. Specify for Training or For Inference or if Both
 To train the models, e.g.:
@@ -102,11 +106,13 @@ python data_processing/process_vector_data.py
 python create_dataset.py --config-name vector_config
 ```
 # Step 4: Run training
+
+```
 python train.py --config-name vector_lstm_2
 ```
 ---
 ## 5. Notes (up to you)
 - All config files are located in `conf/` directory
 freq_ratio: 5
-    oreq_ratio: 5
+    freq_ratio: 5
 
