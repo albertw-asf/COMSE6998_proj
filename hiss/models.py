@@ -132,7 +132,7 @@ class TransformerModel(nn.Module):
         initrange = 0.1
         nn.init.uniform_(self.embed.weight, -initrange, initrange)
 
-    def forward(self, src, has_mask=True):
+    def forward(self, src, has_mask=True, return_hidden=False):
         if has_mask:
             # Add causal masking
             device = src.device
